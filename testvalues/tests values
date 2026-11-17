@@ -1,0 +1,48 @@
+ROBOT SELECTION - TEST INPUTS
+Source: robots_imaginarios_500(1).csv
+500 robots; these are suggested software-test preferences, not robot specifications or recommendations.
+
+ACTUAL RANGES IN THE CSV
+Costo_USD: 25000 to 140000
+Carga_maxima_kg: 5 to 40
+Bateria_h: 3 to 10
+Consumo_medio_W: 280 to 1250
+Rango_util_m: 0.8 to 2
+Autonomia_pct: 50 to 98
+
+Enter numeric values without currency symbols or thousands separators.
+Use a dot for decimals. For cost, enter only Max; cost has no weight.
+The five non-cost weights total 1.000000 in each test (normalized, with a rounding adjustment).
+Min <= Ideal <= Max in every non-cost row.
+
+TEST 1 - Balanced preferences
+Robots within the cost limit: 285 of 500
+Costo_USD: Max=70000
+Carga_maxima_kg: Min=5; Ideal=20; Max=40; Weight=0.250000
+Bateria_h: Min=3; Ideal=6; Max=10; Weight=0.187500
+Consumo_medio_W: Min=280; Ideal=600; Max=1250; Weight=0.187500
+Rango_util_m: Min=0.8; Ideal=1.4; Max=2; Weight=0.125000
+Autonomia_pct: Min=50; Ideal=85; Max=98; Weight=0.250000
+
+TEST 2 - Prioritize battery and autonomy
+Robots within the cost limit: 367 of 500
+Costo_USD: Max=90000
+Carga_maxima_kg: Min=5; Ideal=15; Max=25; Weight=0.111111
+Bateria_h: Min=6; Ideal=9; Max=10; Weight=0.333333
+Consumo_medio_W: Min=280; Ideal=350; Max=600; Weight=0.166667
+Rango_util_m: Min=0.8; Ideal=1.5; Max=2; Weight=0.111111
+Autonomia_pct: Min=85; Ideal=98; Max=98; Weight=0.277778
+
+TEST 3 - Prioritize payload
+Robots within the cost limit: 500 of 500
+Costo_USD: Max=140000
+Carga_maxima_kg: Min=20; Ideal=35; Max=40; Weight=0.444444
+Bateria_h: Min=3; Ideal=6; Max=10; Weight=0.111111
+Consumo_medio_W: Min=420; Ideal=800; Max=1250; Weight=0.111111
+Rango_util_m: Min=1.2; Ideal=1.8; Max=2; Weight=0.111111
+Autonomia_pct: Min=70; Ideal=90; Max=98; Weight=0.222223
+
+BUDGET FILTER CHECKS
+Max cost 24999: no robots qualify.
+Max cost 25000: 23 robots qualify.
+Max cost 140000: all 500 robots qualify.

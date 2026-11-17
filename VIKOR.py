@@ -6,18 +6,26 @@ def main():
     matrix = pd.read_csv("/Users//Desktop/Pruebas/robots_imaginarios.csv")
     vikor(matrix)
 
-def vikor(matrix,pesos):
+def vikor(matrix,minmax):
     criterios = matrix.drop(columns="Robot")
+    valores = minmax.set_index("Criterio")
     #Copia para guardar los resultados, convierte los valores a float
+
+    # Filters out all values above the max cost, can inlcude other cost criteria
+    criterios = criterios.loc[criterios["Costo_USD"] <= valores.loc["Costo_USD","Max"]]
     normalizada = criterios.astype(float).copy()
-    # find the minimums and max of each category
+
+    #find the absolute biggest diference, etween the parameters
+    for i in criterios.columns:
+        if i != "Costo_USD":
+            normalizada[i] = (criterios[i] - valores[i, "Ideal"]).abs()
     for j in range(normalizada.shape[1]):
         min = normalizada.iloc[:, j].min()
         max = normalizada.iloc[:, j].max()
         #Replace the value in the matrix for the converted value
         normalizada.iloc[:, j] = convertvalues(j, min, max, normalizada)
     #ponderada ya fue multiplicado por los pesos
-    ponderada= calculoconepsos(pesos, normalizada)
+    ponderada= calculoconepsos(valores["Weight"], normalizada)
     resultados = calculoscore(ponderada)
     recomendaciones = recomendar_robots(matrix, resultados)
     print("Matriz con los criterios de 1 a 0:\n", normalizada)
@@ -25,7 +33,7 @@ def vikor(matrix,pesos):
     print(f"Matriz de pesos calculados \n", resultados)
     print("\nLas 3 primeras recomendaciones:")
     print(recomendaciones.to_string(index=False))
-
+    
     return recomendaciones
 
 #convert the values to dij
@@ -34,11 +42,8 @@ def convertvalues(j,min,max,criterios):
     #in case all robot values are the same , which is unlikely
     if max == min:
         return columna*0
-    #Cost criteria, less is best
-    if criterios.columns[j] in {"Costo_USD", "Consumo_medio_W"}:
-        return (columna-min)/(max-min)
-    #Profit criteria, more is best
-    return ((max-columna)/(max-min))
+    #Less is best always since it calcualtes for the middle value
+    return (columna - min) / (max - min)
 
 #Calcular la matriz con los pesos
 def calculoconepsos(pesos, normalizada):
@@ -65,11 +70,18 @@ def calculoQi(resultados):
     maxRi = resultados["Ri"].max()
     minRi = resultados["Ri"].min()
     #Saca maximos y minimos necesarios para el calculo del score final de vikor
-    for i in range(resultados.shape[0]):
-        Ri = resultados.iloc[i, 1]
-        Si = resultados.iloc[i, 0]
+    for i in resultados.index:
+        Ri = resultados.iloc[i, "Ri"]
+        Si = resultados.iloc[i, "Si"]
         #calculo del score
-        resultados.loc[i,"Qi"] = v*((Si-minSi)/(maxSi-minSi))+(1-v)*((Ri-minRi)/(maxRi-minRi))
+        parteS = ( 0.0 if minSi == maxSi
+                   else (Si - minSi) / (maxSi - minSi))
+        parteR = (
+            0.0 if maxRi == minRi
+            else (Ri - minRi) / (maxRi - minRi)
+        )
+        resultados.loc[i, "Qi"] = v * parteS + (1 - v) * parteR
+
     return resultados
 
 def recomendar_robots(matrix, resultados):

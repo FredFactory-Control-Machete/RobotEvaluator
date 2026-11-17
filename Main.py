@@ -1,13 +1,11 @@
-import VIKOR as v
-import TOPSIS as t
-import CODAS as c
-import MORA as m
 import pandas as pd
+import VIKOR as v
 
-def main():
-    matrix = pd.read_csv("/Users/gabrielburbano/Desktop/Pruebas/robots_imaginarios.csv")
-    matrizpesos = pesos(matrix)
-    return v(matrix,matrizpesos)
+def main(file,minmax):
+    matrix = pd.read_csv(file)
+    valores = minmax
+    #matrizpesos = pesos(matrix)
+    return v.vikor(matrix, minmax)
 
 def pesos(matrix):
     criterios = matrix.drop(columns="Robot")
@@ -31,4 +29,5 @@ def pesos(matrix):
     return matrizpesos
 
 if __name__ == '__main__':
-    main()
+    matrix = pd.read_csv("/Users/gabrielburbano/Desktop/Pruebas/robots_imaginarios.csv")
+    main(matrix)

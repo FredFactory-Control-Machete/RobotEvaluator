@@ -1,7 +1,5 @@
 import pandas as pd
-import numpy as np
 import streamlit as st
-import VIKOR
 from Main import main
 
 st.set_page_config(page_title="Hello Streamlit", page_icon="📊", layout="wide")
@@ -35,8 +33,10 @@ if st.button("Next"):
 
 if st.session_state.get("show_inputs", False):#cheacks the flag
     matrix = st.session_state["matrix"].drop(columns="Robot")
-    df = pd.DataFrame(columns=["Criterio", "Min", "Ideal", "Max","Weight"])
+    df = pd.DataFrame(columns=["Criterio", "Min", "Ideal", "Max","Weight", "Filter"])
     for i in matrix.columns:
+        aplicar_filtro = st.checkbox(
+            f"Apply limits for {i}", value=True, key=f"filter_{i}")
         if i != "Costo_USD":
 
             st.write(f"For {i}, what are the min, ideal and max values?")
@@ -49,17 +49,19 @@ if st.session_state.get("show_inputs", False):#cheacks the flag
                                    min_value=0.0,
                                    max_value=1.0,
                                    step=0.01,
-                                   key=f"weight_{i}"
-                              )]
+                                   key=f"weight_{i}"),
+                                   aplicar_filtro]
             fila = df.iloc[-1] # select the row you ust added(last row basically)
             if not (fila["Min"] <= fila["Ideal"] <= fila["Max"]):#if condition not met, warning
                 st.warning(f"For {i}, values must satisfy: Min ≤ Ideal ≤ Max.")
         else:
             st.write(f"What is the most you are willing to pay")
-            df.loc[len(df)] = [i, None, None, st.number_input("Max", key=f"max_{i}"),None]
+            df.loc[len(df)] = [i, None, None, st.number_input("Max", key=f"max_{i}"),None, aplicar_filtro]
     st.session_state["Values"] = df
 
 # press button to calcualte, recommendations based on each algorithm.
 if st.button("Calculate"):
-    st.dataframe(st.session_state["Values"])
-    st.dataframe(main(st.session_state["matrix"],main(st.session_state["values"])))
+    try:
+        st.dataframe(main(st.session_state["matrix"], st.session_state["Values"]))
+    except ValueError as error:
+        st.warning(str(error))

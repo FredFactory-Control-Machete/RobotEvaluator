@@ -2,7 +2,7 @@ import pandas as pd
 import VIKOR as v
 
 def main(file,minmax):
-    matrix = pd.read_csv(file)
+    matrix = file
     valores = minmax
     #matrizpesos = pesos(matrix)
     return v.vikor(matrix, minmax)

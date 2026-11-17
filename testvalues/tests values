@@ -45,4 +45,4 @@ Autonomia_pct: Min=70; Ideal=90; Max=98; Weight=0.222223
 BUDGET FILTER CHECKS
 Max cost 24999: no robots qualify.
 Max cost 25000: 23 robots qualify.
-Max cost 140000: all 500 robots qualify.
+Max cost 140000: all 500 robots qualify.1

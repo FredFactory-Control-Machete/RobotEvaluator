@@ -12,13 +12,26 @@ def vikor(matrix,minmax):
     #Copia para guardar los resultados, convierte los valores a float
 
     # Filters out all values above the max cost, can inlcude other cost criteria
-    criterios = criterios.loc[criterios["Costo_USD"] <= valores.loc["Costo_USD","Max"]]
+    for i in criterios.columns:
+        if not valores.loc[i, "Filter"]:
+            continue
+        if i == "Costo_USD":
+            criterios = criterios.loc[criterios[i] <= valores.loc[i, "Max"]]
+        else:
+            criterios = criterios.loc[
+                criterios[i].between(
+                    valores.loc[i, "Min"],
+                    valores.loc[i, "Max"],
+                    inclusive="both")]
+    if criterios.empty:
+        raise ValueError("No robots meet the enabled filters.")
+
     normalizada = criterios.astype(float).copy()
 
     #find the absolute biggest diference, etween the parameters
     for i in criterios.columns:
         if i != "Costo_USD":
-            normalizada[i] = (criterios[i] - valores[i, "Ideal"]).abs()
+            normalizada[i] = (criterios[i] - valores.loc[i, "Ideal"]).abs()
     for j in range(normalizada.shape[1]):
         min = normalizada.iloc[:, j].min()
         max = normalizada.iloc[:, j].max()
@@ -71,8 +84,8 @@ def calculoQi(resultados):
     minRi = resultados["Ri"].min()
     #Saca maximos y minimos necesarios para el calculo del score final de vikor
     for i in resultados.index:
-        Ri = resultados.iloc[i, "Ri"]
-        Si = resultados.iloc[i, "Si"]
+        Ri = resultados.loc[i, "Ri"]
+        Si = resultados.loc[i, "Si"]
         #calculo del score
         parteS = ( 0.0 if minSi == maxSi
                    else (Si - minSi) / (maxSi - minSi))
